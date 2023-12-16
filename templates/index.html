@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Your existing head content -->
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>IP Ping Checker</title>
+    <link rel="stylesheet" href="../lib/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="../lib/jquery-3.3.1.slim.min.js"></script>
+    <script src="../lib/bootstrap.min.js"></script>
+
+    <!-- Include SocketIO script -->
+    <script src="../lib/socket.io.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+            // Counter variable
+            var refreshCounter = 0;
+
+            socket.on('update', function(data) {
+                // Increment the counter on each update
+                refreshCounter++;
+                updateResults(data.results, refreshCounter);
+            });
+
+            function updateResults(results, counter) {
+                var container = $('.container');
+                container.empty();
+
+                // Display the counter
+                var counterDiv = $('<div>').text('Refresh Count: ' + counter);
+                container.append(counterDiv);
+
+                var table = $('<table>').addClass('table table-striped');
+                container.append(table);
+
+                var row;
+                $.each(results, function(ip, result) {
+                    if (!row || row.find('td').length === 3) {
+                        row = $('<tr>');
+                        table.append(row);
+                    }
+
+                    var statusClass = result ? 'pingable' : 'not-pingable';
+                    var statusText = result ? 'Pingable' : 'Not Pingable';
+
+                    var cell = $('<td>').addClass('col-xs-12');
+                    var div = $('<div>').addClass(statusClass).text(ip);
+                    cell.append(div);
+                    row.append(cell);
+                });
+            }
+        });
+    </script>
+
+    <style>
+        .pingable {
+            background-color: #4CAF50; /* Green */
+            color: white;
+            border-radius: 5px;
+            padding: 5%;
+            margin: 5px;
+        }
+        .col-xs-12 {
+            margin-right: 10px;
+        }
+
+        .not-pingable {
+            background-color: #FF5733; /* Red */
+            color: white;
+            border-radius: 5px;
+            margin-right: 5%;
+            padding: 5%;
+            text-align: center;
+            margin: 10px;
+            
+        }
+        .header {
+            background-color: #f6f6f7;
+            color: rgb(28, 18, 24);
+            padding: 15px;
+            text-align: center;
+        }
+        .label-container {
+            position: relative;
+            top: 10px;
+            left: 10px;
+            z-index: 9999;
+            padding: 2%;
+        }
+
+        .pingable-label, .not-pingable-label {
+            display: inline-block;
+            padding: 5px;
+            margin-right: 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .pingable-label {
+            background-color: #4CAF50; /* Green */
+            color: white;
+        }
+
+        .not-pingable-label {
+            background-color: #FF5733; /* Red */
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-dark bg-dark navbar-expand-md">
+        <a class="navbar-brand" href="https://www.itron.com/">Itron</a>
+    </nav>
+
+    <div class="header">
+        <h3>IP Ping Results</h3>
+    </div>
+    <div class="label-container">
+        <span class="pingable-label">Pingable</span>
+        <span class="not-pingable-label">Not Pingable</span>
+    </div>
+
+    <div class="container">
+        <!-- The counter and the table will be dynamically updated by JavaScript -->
+    </div>
+</body>
+</html>
